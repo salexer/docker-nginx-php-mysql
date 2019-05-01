@@ -35,7 +35,7 @@ services:
             - "./web:/var/www/html"
         networks:
             app_net:
-                ipv4_address: ${PRE_MASK}.10
+                ipv4_address: ${PRE_MASK}.11
     myadmin:
         image: phpmyadmin/phpmyadmin
         ports:
@@ -46,6 +46,9 @@ services:
         restart: "no"
         depends_on:
             - mysqldb
+        networks:
+            app_net:
+                ipv4_address: ${PRE_MASK}.12
     mysqldb:
         image: mysql:${MYSQL_VERSION}
         container_name: ${MYSQL_HOST}
@@ -61,3 +64,6 @@ services:
             - "${MYSQL_PORT}:3306"
         volumes:
             - "./data/db/mysql:/var/lib/mysql"
+        networks:
+            app_net:
+                ipv4_address: ${PRE_MASK}.13
