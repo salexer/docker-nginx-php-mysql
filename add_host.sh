@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 parse_yaml() {
    local prefix=$2
    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
@@ -15,18 +15,20 @@ parse_yaml() {
       }
    }'
 }
-# read yaml file
-eval $(parse_yaml test.yml "config_")
-
 # PATH TO YOUR HOSTS FILE
 ETC_HOSTS=/etc/hosts
-
+echo "Variable HOST = $ETC_HOSTS"
+# read yaml file
+eval $(parse_yaml docker-compose.yml "config_")
 # DEFAULT IP FOR HOSTNAME
-IP=$config_services__web__networks__app_net__ipv4_address
-
+LAST_ADRESS=$config_services__web__networks__app_net__ipv4_address
+START_ADRESS=$(cat .env | grep "PRE_MASK" | cut -f2 -d"=")
+IP=$START_ADRESS$LAST_ADRESS
 # Hostname to add/remove.
 HOSTNAME=$1
 
+action=$2
+echo "Variable action = $action"
 function removehost() {
     if [ -n "$(grep $HOSTNAME /etc/hosts)" ]
     then
@@ -38,8 +40,8 @@ function removehost() {
 }
 
 function addhost() {
-    HOSTNAME=$1
     HOSTS_LINE="$IP\t$HOSTNAME"
+    echo "CURRENT ROW = $HOSTS_LINE"
     if [ -n "$(grep $HOSTNAME /etc/hosts)" ]
         then
             echo "$HOSTNAME already exists : $(grep $HOSTNAME $ETC_HOSTS)"
@@ -55,3 +57,5 @@ function addhost() {
             fi
     fi
 }
+echo "Try to do action..."
+${action}
